@@ -1,0 +1,590 @@
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ vi deployment.yml
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ vi service.yml
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ git add .
+warning: in the working copy of 'deployment.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'service.yml', LF will be replaced by CRLF the next time Git touches it
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ git commit -m "added k8s"
+[main 9593aea] added k8s
+ 2 files changed, 32 insertions(+)
+ create mode 100644 deployment.yml
+ create mode 100644 service.yml
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ git push origin main
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 599 bytes | 199.00 KiB/s, done.
+Total 4 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/Nikhil-KVS/Minikube-K8sCluster.git
+   624b516..9593aea  main -> main
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl apply -f deployment.yaml
+error: the path "deployment.yaml" does not exist
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl apply -f deployment.yml
+deployment.apps/nginx-deployment created
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl apply -f service.yml
+service/nginx-service created
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS        AGE
+myapp-deployment-5985b8c949-jf5cl   1/1     Running   1 (5m46s ago)   9h
+myapp-deployment-5985b8c949-vhqhb   1/1     Running   1 (5m46s ago)   9h
+myapp-deployment-5985b8c949-vz2xp   1/1     Running   1 (5m46s ago)   9h
+nginx-deployment-7ccccd94f7-5czpc   1/1     Running   0               24s
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl get services
+NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubernetes      ClusterIP   10.96.0.1        <none>        443/TCP        9h
+myapp-service   NodePort    10.103.146.151   <none>        80:30007/TCP   9h
+nginx-service   NodePort    10.110.214.201   <none>        80:31632/TCP   32s
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl scale deployment nginx-deployment --replicas=3
+deployment.apps/nginx-deployment scaled
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl get pods
+NAME                                READY   STATUS              RESTARTS       AGE
+myapp-deployment-5985b8c949-jf5cl   1/1     Running             1 (9m2s ago)   9h
+myapp-deployment-5985b8c949-vhqhb   1/1     Running             1 (9m2s ago)   9h
+myapp-deployment-5985b8c949-vz2xp   1/1     Running             1 (9m2s ago)   9h
+nginx-deployment-7ccccd94f7-5czpc   1/1     Running             0              3m40s
+nginx-deployment-7ccccd94f7-8r2dj   0/1     ContainerCreating   0              5s
+nginx-deployment-7ccccd94f7-bc6lx   0/1     ContainerCreating   0              5s
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl describe pods
+Name:             myapp-deployment-5985b8c949-jf5cl
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Mon, 29 Sep 2025 15:36:22 +0530
+Labels:           app=myapp
+                  pod-template-hash=5985b8c949
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.23
+IPs:
+  IP:           10.244.0.23
+Controlled By:  ReplicaSet/myapp-deployment-5985b8c949
+Containers:
+  myapp:
+    Container ID:   docker://e5824bff3c2ae4bc00554312d07ba248f52e33ecaa042dc597fefe7abc8deb3a
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:d5f28ef21aabddd098f3dbc21fe5b7a7d7a184720bc07da0b6c9b9820e97f25e
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Tue, 30 Sep 2025 00:51:53 +0530
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 29 Sep 2025 15:36:25 +0530
+      Finished:     Tue, 30 Sep 2025 00:51:15 +0530
+    Ready:          True
+    Restart Count:  1
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-psd5k (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-psd5k:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason          Age                    From     Message
+  ----    ------          ----                   ----     -------
+  Normal  SandboxChanged  9m12s (x2 over 9m23s)  kubelet  Pod sandbox changed, it will be killed and re-created.
+  Normal  Pulling         9m2s (x2 over 9h)      kubelet  Pulling image "nginx"
+  Normal  Pulled          8m58s                  kubelet  Successfully pulled image "nginx" in 4.899s (4.9s including waiting). Image size: 192385289 bytes.
+  Normal  Created         8m57s (x2 over 9h)     kubelet  Created container: myapp
+  Normal  Started         8m56s (x2 over 9h)     kubelet  Started container myapp
+
+
+Name:             myapp-deployment-5985b8c949-vhqhb
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Mon, 29 Sep 2025 15:36:34 +0530
+Labels:           app=myapp
+                  pod-template-hash=5985b8c949
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.24
+IPs:
+  IP:           10.244.0.24
+Controlled By:  ReplicaSet/myapp-deployment-5985b8c949
+Containers:
+  myapp:
+    Container ID:   docker://f05b0d57ed71d457e3505ebaf3d1e0efc4203bda2fe04180c55ab2633d824b54
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:d5f28ef21aabddd098f3dbc21fe5b7a7d7a184720bc07da0b6c9b9820e97f25e
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Tue, 30 Sep 2025 00:51:59 +0530
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 29 Sep 2025 15:36:38 +0530
+      Finished:     Tue, 30 Sep 2025 00:51:15 +0530
+    Ready:          True
+    Restart Count:  1
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-twqq5 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-twqq5:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason          Age                   From     Message
+  ----    ------          ----                  ----     -------
+  Normal  SandboxChanged  9m9s (x2 over 9m23s)  kubelet  Pod sandbox changed, it will be killed and re-created.
+  Normal  Pulling         8m59s (x2 over 9h)    kubelet  Pulling image "nginx"
+  Normal  Pulled          8m53s                 kubelet  Successfully pulled image "nginx" in 4.717s (6.51s including waiting). Image size: 192385289 bytes.
+  Normal  Created         8m52s (x2 over 9h)    kubelet  Created container: myapp
+  Normal  Started         8m50s (x2 over 9h)    kubelet  Started container myapp
+
+
+Name:             myapp-deployment-5985b8c949-vz2xp
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Mon, 29 Sep 2025 15:36:08 +0530
+Labels:           app=myapp
+                  pod-template-hash=5985b8c949
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.20
+IPs:
+  IP:           10.244.0.20
+Controlled By:  ReplicaSet/myapp-deployment-5985b8c949
+Containers:
+  myapp:
+    Container ID:   docker://5f94e4a209ca193b1b5b85a81ecdd9c7fd0e719db4f11478a16cf87682b68804
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:d5f28ef21aabddd098f3dbc21fe5b7a7d7a184720bc07da0b6c9b9820e97f25e
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Tue, 30 Sep 2025 00:51:48 +0530
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 29 Sep 2025 15:36:14 +0530
+      Finished:     Tue, 30 Sep 2025 00:51:15 +0530
+    Ready:          True
+    Restart Count:  1
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-dthz2 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-dthz2:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason          Age                 From     Message
+  ----    ------          ----                ----     -------
+  Normal  SandboxChanged  9m20s               kubelet  Pod sandbox changed, it will be killed and re-created.
+  Normal  Pulling         9m14s (x2 over 9h)  kubelet  Pulling image "nginx"
+  Normal  Pulled          9m4s                kubelet  Successfully pulled image "nginx" in 10.488s (10.488s including waiting). Image size: 192385289 bytes.
+  Normal  Created         9m2s (x2 over 9h)   kubelet  Created container: myapp
+  Normal  Started         9m (x2 over 9h)     kubelet  Started container myapp
+
+
+Name:             nginx-deployment-7ccccd94f7-5czpc
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Tue, 30 Sep 2025 00:56:37 +0530
+Labels:           app=nginx
+                  pod-template-hash=7ccccd94f7
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.25
+IPs:
+  IP:           10.244.0.25
+Controlled By:  ReplicaSet/nginx-deployment-7ccccd94f7
+Containers:
+  nginx:
+    Container ID:   docker://67e0101e48fd27ba58396b5b270e1dfa72ebd12a735d93701c15a1d9e01da5e0
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:d5f28ef21aabddd098f3dbc21fe5b7a7d7a184720bc07da0b6c9b9820e97f25e
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Tue, 30 Sep 2025 00:56:41 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7zt8g (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-7zt8g:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  4m13s  default-scheduler  Successfully assigned default/nginx-deployment-7ccccd94f7-5czpc to minikube
+  Normal  Pulling    4m12s  kubelet            Pulling image "nginx"
+  Normal  Pulled     4m9s   kubelet            Successfully pulled image "nginx" in 3.608s (3.608s including waiting). Image size: 192385289 bytes.
+  Normal  Created    4m9s   kubelet            Created container: nginx
+  Normal  Started    4m8s   kubelet            Started container nginx
+
+
+Name:             nginx-deployment-7ccccd94f7-8r2dj
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Tue, 30 Sep 2025 01:00:12 +0530
+Labels:           app=nginx
+                  pod-template-hash=7ccccd94f7
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.26
+IPs:
+  IP:           10.244.0.26
+Controlled By:  ReplicaSet/nginx-deployment-7ccccd94f7
+Containers:
+  nginx:
+    Container ID:   docker://ae32bc6d7b4c15f793ba3fb9c4bffd2ae2a9639c1b1a79ee53516c4f9ea6ba24
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:d5f28ef21aabddd098f3dbc21fe5b7a7d7a184720bc07da0b6c9b9820e97f25e
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Tue, 30 Sep 2025 01:00:18 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kg9cv (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-kg9cv:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  37s   default-scheduler  Successfully assigned default/nginx-deployment-7ccccd94f7-8r2dj to minikube
+  Normal  Pulling    36s   kubelet            Pulling image "nginx"
+  Normal  Pulled     32s   kubelet            Successfully pulled image "nginx" in 3.961s (3.961s including waiting). Image size: 192385289 bytes.
+  Normal  Created    32s   kubelet            Created container: nginx
+  Normal  Started    32s   kubelet            Started container nginx
+
+
+Name:             nginx-deployment-7ccccd94f7-bc6lx
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Tue, 30 Sep 2025 01:00:12 +0530
+Labels:           app=nginx
+                  pod-template-hash=7ccccd94f7
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.27
+IPs:
+  IP:           10.244.0.27
+Controlled By:  ReplicaSet/nginx-deployment-7ccccd94f7
+Containers:
+  nginx:
+    Container ID:   docker://b0b0a6307f27bae9c06d1da34c8dc3722f7cd41c0e9a12bf583d8d25ec536ee0
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:d5f28ef21aabddd098f3dbc21fe5b7a7d7a184720bc07da0b6c9b9820e97f25e
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Tue, 30 Sep 2025 01:00:21 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-gdphn (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-gdphn:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  37s   default-scheduler  Successfully assigned default/nginx-deployment-7ccccd94f7-bc6lx to minikube
+  Normal  Pulling    36s   kubelet            Pulling image "nginx"
+  Normal  Pulled     29s   kubelet            Successfully pulled image "nginx" in 3.246s (7.147s including waiting). Image size: 192385289 bytes.
+  Normal  Created    29s   kubelet            Created container: nginx
+  Normal  Started    29s   kubelet            Started container nginx
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl logs myapp-deployment-5985b8c949-jf5cl
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2025/09/29 19:21:55 [notice] 1#1: using the "epoll" event method
+2025/09/29 19:21:55 [notice] 1#1: nginx/1.29.1
+2025/09/29 19:21:55 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14+deb12u1)
+2025/09/29 19:21:55 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/09/29 19:21:55 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/09/29 19:21:55 [notice] 1#1: start worker processes
+2025/09/29 19:21:55 [notice] 1#1: start worker process 29
+2025/09/29 19:21:55 [notice] 1#1: start worker process 30
+2025/09/29 19:21:55 [notice] 1#1: start worker process 31
+2025/09/29 19:21:55 [notice] 1#1: start worker process 32
+2025/09/29 19:21:55 [notice] 1#1: start worker process 33
+2025/09/29 19:21:55 [notice] 1#1: start worker process 34
+2025/09/29 19:21:55 [notice] 1#1: start worker process 35
+2025/09/29 19:21:55 [notice] 1#1: start worker process 36
+2025/09/29 19:21:55 [notice] 1#1: start worker process 37
+2025/09/29 19:21:55 [notice] 1#1: start worker process 38
+2025/09/29 19:21:55 [notice] 1#1: start worker process 39
+2025/09/29 19:21:55 [notice] 1#1: start worker process 40
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl logs myapp-deployment-5985b8c949-vhqhb
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2025/09/29 19:22:00 [notice] 1#1: using the "epoll" event method
+2025/09/29 19:22:00 [notice] 1#1: nginx/1.29.1
+2025/09/29 19:22:00 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14+deb12u1)
+2025/09/29 19:22:00 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/09/29 19:22:00 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/09/29 19:22:00 [notice] 1#1: start worker processes
+2025/09/29 19:22:00 [notice] 1#1: start worker process 29
+2025/09/29 19:22:00 [notice] 1#1: start worker process 30
+2025/09/29 19:22:00 [notice] 1#1: start worker process 31
+2025/09/29 19:22:00 [notice] 1#1: start worker process 32
+2025/09/29 19:22:00 [notice] 1#1: start worker process 33
+2025/09/29 19:22:00 [notice] 1#1: start worker process 34
+2025/09/29 19:22:00 [notice] 1#1: start worker process 35
+2025/09/29 19:22:00 [notice] 1#1: start worker process 36
+2025/09/29 19:22:00 [notice] 1#1: start worker process 37
+2025/09/29 19:22:00 [notice] 1#1: start worker process 38
+2025/09/29 19:22:00 [notice] 1#1: start worker process 39
+2025/09/29 19:22:00 [notice] 1#1: start worker process 40
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl logs  nginx-deployment-7ccccd94f7-bc6lx
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2025/09/29 19:30:21 [notice] 1#1: using the "epoll" event method
+2025/09/29 19:30:21 [notice] 1#1: nginx/1.29.1
+2025/09/29 19:30:21 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14+deb12u1)
+2025/09/29 19:30:21 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/09/29 19:30:21 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/09/29 19:30:21 [notice] 1#1: start worker processes
+2025/09/29 19:30:21 [notice] 1#1: start worker process 29
+2025/09/29 19:30:21 [notice] 1#1: start worker process 30
+2025/09/29 19:30:21 [notice] 1#1: start worker process 31
+2025/09/29 19:30:21 [notice] 1#1: start worker process 32
+2025/09/29 19:30:21 [notice] 1#1: start worker process 33
+2025/09/29 19:30:21 [notice] 1#1: start worker process 34
+2025/09/29 19:30:21 [notice] 1#1: start worker process 35
+2025/09/29 19:30:21 [notice] 1#1: start worker process 36
+2025/09/29 19:30:21 [notice] 1#1: start worker process 37
+2025/09/29 19:30:21 [notice] 1#1: start worker process 38
+2025/09/29 19:30:21 [notice] 1#1: start worker process 39
+2025/09/29 19:30:21 [notice] 1#1: start worker process 40
+
+venka@LAPTOP-Q8UHI5CK MINGW64 /e/Elevate Labs/Minikube-K8sCluster (main)
+$ kubectl get services
+NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubernetes      ClusterIP   10.96.0.1        <none>        443/TCP        9h
+myapp-service   NodePort    10.103.146.151   <none>        80:30007/TCP   9h
+nginx-service   NodePort    10.110.214.201   <none>        80:31632/TCP   8m33s
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+                        minikube start --driver=docker
+>> C:\WINDOWS\system32>
+minikube : The term 'minikube' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ minikube start --driver=docker
++ ~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (minikube:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+PS C:\WINDOWS\system32> minikube start --driver=docker
+minikube : The term 'minikube' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ minikube start --driver=docker
++ ~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (minikube:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+PS C:\WINDOWS\system32> Set-Alias minikube "C:\Minikube\minikube.exe"
+PS C:\WINDOWS\system32> minikube start --driver=docker
+* minikube v1.37.0 on Microsoft Windows 11 Home Single Language 10.0.26100.6584 Build 26100.6584
+* Using the docker driver based on existing profile
+* Starting "minikube" primary control-plane node in "minikube" cluster
+* Pulling base image v0.0.48 ...
+* Downloading Kubernetes v1.34.0 preload ...
+* Updating the running docker "minikube" container ...
+! Failing to connect to https://registry.k8s.io/ from inside the minikube container
+* To pull new external images, you may need to configure a proxy: https://minikube.sigs.k8s.io/docs/reference/networking/proxy/
+* Preparing Kubernetes v1.34.0 on Docker 28.4.0 ...
+* Verifying Kubernetes components...
+  - Using image gcr.io/k8s-minikube/storage-provisioner:v5
+* Enabled addons: storage-provisioner, default-storageclass
+
+! C:\Program Files\Docker\Docker\resources\bin\kubectl.exe is version 1.32.2, which may have incompatibilities with Kubernetes 1.34.0.
+  - Want kubectl v1.34.0? Try 'minikube kubectl -- get pods -A'
+* Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+PS C:\WINDOWS\system32> minikube status
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+PS C:\WINDOWS\system32> kubectl get nodes
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   9h    v1.34.0
+PS C:\WINDOWS\system32> minikube service ngnix-service
+
+X Exiting due to SVC_NOT_FOUND: Service 'ngnix-service' was not found in 'default' namespace.
+You may select another namespace by using 'minikube service ngnix-service -n <namespace>'. Or list out all the services using 'minikube service list'
+
+PS C:\WINDOWS\system32> minikube service myapp-service
+┌───────────┬───────────────┬─────────────┬───────────────────────────┐
+│ NAMESPACE │     NAME      │ TARGET PORT │            URL            │
+├───────────┼───────────────┼─────────────┼───────────────────────────┤
+│ default   │ myapp-service │ 80          │ http://192.168.49.2:30007 │
+└───────────┴───────────────┴─────────────┴───────────────────────────┘
+* Starting tunnel for service myapp-service./┌───────────┬───────────────┬─────────────┬────────────────────────┐
+│ NAMESPACE │     NAME      │ TARGET PORT │          URL           │
+├───────────┼───────────────┼─────────────┼────────────────────────┤
+│ default   │ myapp-service │             │ http://127.0.0.1:59727 │
+└───────────┴───────────────┴─────────────┴────────────────────────┘
+* Starting tunnel for service myapp-service.
+* Opening service default/myapp-service in default browser...
+! Because you are using a Docker driver on windows, the terminal needs to be open to run it.
